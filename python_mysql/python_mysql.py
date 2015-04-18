@@ -148,3 +148,34 @@ def query_insertmany(table, columns, value_list):
     cursor.close()
     conn.close()
 
+def query_update(table, new_value, filter_condition):
+    """
+    Update the data in the table.
+    :param table: (String) Name of the table to be updated.
+    :param new_value: (Dictionary) COLUMN NAME:NEW VALUE pairs.
+    :param filter_condition: (String) Filter condition clause.
+    """
+    if not filter_condition.startswith('WHERE'):
+        filter_condition = 'WHERE ' + filter_condition
+
+    data = tuple(new_value.values())
+    columns = new_value.keys()
+
+    for i in range(len(columns)):
+        columns[i] += '=%s'
+
+    query = 'UPDATE ' + table + ' SET ' + ','.join(columns)+' '+filter_condition
+
+    column_value_pair = ['{0}={1}'.format(key, value) for key, value in new_value.items()]
+    query_print = 'UPDATE ' + table + ' SET ' + ','.join(column_value_pair)+' '+filter_condition
+    print 'executing: ' + query_print
+
+    # Update the data
+    conn = connect()
+    cursor = conn.cursor()
+    cursor.execute(query, data)
+    # Commit the change
+    conn.commit()
+    # Close the connection
+    cursor.close()
+    conn.close()
