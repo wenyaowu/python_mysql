@@ -43,11 +43,16 @@ def connect():
         print e.message
 
 
-def internal_call(query, value=[]):
+def internal_call(query, value=None):
 
     conn = connect()
     cursor = conn.cursor()
 
+    cursor.execute(query, value)
+    conn.commit()
+
+    cursor.close()
+    conn.close()
 
 
 def query_with_fetchone(query):
@@ -107,28 +112,16 @@ def query_with_fetchmany(query, size=10):
 def query_insert(table, query_dict):
 
     columns = query_dict.keys()
-    args = tuple(query_dict.values())
+    data = tuple(query_dict.values())
     query = 'INSERT INTO '+table+'('+','.join(columns)+') '\
     +'VALUES' + '(' +','.join(['%s' for i in range(len(columns))])+')'
 
     query_print = query
-    for arg in args:
+    for arg in data:
         query_print = query_print.replace("%s", arg, 1)
     print('executing: '+query_print)
 
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute(query, args)
-
-    if cursor.lastrowid:
-        print 'Last insert ID:' + str(cursor.lastrowid)
-    else:
-        print 'Last insert ID not found'
-
-    conn.commit()
-
-    cursor.close()
-    conn.close()
+    internal_call(query, data)
 
 
 def query_insertmany(table, columns, value_list):
@@ -177,26 +170,8 @@ def query_update(table, new_value, filter_condition):
     query_print = 'UPDATE ' + table + ' SET ' + ','.join(column_value_pair)+' '+filter_condition
     print 'executing: ' + query_print
 
-    # Update the data
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute(query, data)
-    # Commit the change
-    conn.commit()
-    # Close the connection
-    cursor.close()
-    conn.close()
+    internal_call(query, data)
 
 
 def query_delete(query):
-
-    conn = connect()
-    cursor = conn.cursor()
-
-    cursor.execute(query)
-    conn.commit()
-
-    cursor.close()
-    conn.close()
-
-
+    internal_call(query)
