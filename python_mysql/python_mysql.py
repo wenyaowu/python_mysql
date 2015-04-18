@@ -43,6 +43,12 @@ def connect():
         print e.message
 
 
+def internal_call(query, value=[]):
+
+    conn = connect()
+    cursor = conn.cursor()
+
+
 
 def query_with_fetchone(query):
 
@@ -148,6 +154,7 @@ def query_insertmany(table, columns, value_list):
     cursor.close()
     conn.close()
 
+
 def query_update(table, new_value, filter_condition):
     """
     Update the data in the table.
@@ -179,3 +186,17 @@ def query_update(table, new_value, filter_condition):
     # Close the connection
     cursor.close()
     conn.close()
+
+
+def query_delete(query):
+
+    conn = connect()
+    cursor = conn.cursor()
+
+    cursor.execute(query)
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+
